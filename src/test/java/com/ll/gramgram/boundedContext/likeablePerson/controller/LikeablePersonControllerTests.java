@@ -6,6 +6,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -149,4 +151,28 @@ public class LikeablePersonControllerTests {
                         """.stripIndent().trim())));
         ;
     }
+
+
+    //삭제기능 구현(rq.redirectWithMsg 함수 사용하기) 테스트,,오류
+    @Test
+    @Secured("user3")  // Spring Security 어노테이션을 사용하여 해당 요청에 대한 인가를 수행하기 위해
+    @DisplayName("호감목록 삭제")
+    @WithUserDetails("user3")
+    void t006() throws Exception{
+        //When
+        ResultActions resultActions = mvc
+                .perform(get("/likeablePerson/delete/1"))
+                .andDo(print());
+
+        //Then
+        resultActions
+                .andExpect(handler().handlerType(LikeablePersonController.class))
+                .andExpect(handler().methodName("delete"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/likeablePerson/list**"));
+        ;
+    }
+
 }
+
+

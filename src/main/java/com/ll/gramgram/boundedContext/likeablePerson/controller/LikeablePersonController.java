@@ -9,13 +9,20 @@ import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.sql.Delete;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.server.ResponseStatusException;
 
+import java.security.Principal;
 import java.util.List;
+import java.util.Optional;
 
 @Controller
 @RequestMapping("/likeablePerson")
@@ -58,5 +65,19 @@ public class LikeablePersonController {
         }
 
         return "usr/likeablePerson/list";
+    }
+
+    //삭제 기능 구현
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/delete/{id}")
+    public String delete(@PathVariable("id") Integer id) {
+
+        RsData<LikeablePerson> deleteRsData = likeablePersonService.deleteLikeablePerson(id, rq.getMember().getInstaMember());
+
+        if (deleteRsData.isFail()) {
+            return rq.historyBack(deleteRsData);
+        }
+
+        return rq.redirectWithMsg("/likeablePerson/list", deleteRsData);
     }
 }

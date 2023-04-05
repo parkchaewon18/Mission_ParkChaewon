@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -21,7 +22,7 @@ public class LikeablePersonService {
 
     @Transactional
     public RsData<LikeablePerson> like(Member member, String username, int attractiveTypeCode) {
-        if ( member.hasConnectedInstaMember() == false ) {
+        if (member.hasConnectedInstaMember() == false) {
             return RsData.of("F-2", "먼저 본인의 인스타그램 아이디를 입력해야 합니다.");
         }
 
@@ -48,4 +49,31 @@ public class LikeablePersonService {
     public List<LikeablePerson> findByFromInstaMemberId(Long fromInstaMemberId) {
         return likeablePersonRepository.findByFromInstaMemberId(fromInstaMemberId);
     }
+
+    // 삭제 기능 구현
+
+    @Transactional
+    public RsData<LikeablePerson> deleteLikeablePerson(Integer id, InstaMember instaMember) {
+        LikeablePerson likeablePerson = getLikeablePerson(id).getData();
+
+        if (instaMember.getId() != likeablePerson.getFromInstaMember().getId() ) {
+            return RsData.of("F-1", "삭제 권한이 없습니다");
+        }
+
+        likeablePersonRepository.delete(likeablePerson); //삭제
+
+        return RsData.of("S-1", "입력하신 호감상대(%s)가 삭제되었습니다.".formatted(likeablePerson.getToInstaMemberUsername()), likeablePerson);
+    }
+
+    @Transactional
+    public RsData<LikeablePerson> getLikeablePerson(Integer id) {
+        Optional<LikeablePerson> likeablePerson = likeablePersonRepository.findById(id);
+
+        if (!likeablePerson.isPresent()) {
+            return RsData.of("F-1", "해당하는 호감상대가 존재하지 않습니다.");
+        }
+
+        return RsData.of("S-1", "호감상대 조회 성공", likeablePerson.get());
+    }
 }
+
