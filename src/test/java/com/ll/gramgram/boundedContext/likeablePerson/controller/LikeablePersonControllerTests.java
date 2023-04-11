@@ -169,8 +169,7 @@ public class LikeablePersonControllerTests {
                 .andExpect(handler().handlerType(LikeablePersonController.class))
                 .andExpect(handler().methodName("delete"))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/likeablePerson/list**"));
-        ;
+                .andExpect(redirectedUrlPattern("/likeablePerson/list**"));
     }
 
 }
