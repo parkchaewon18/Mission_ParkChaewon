@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -50,30 +51,24 @@ public class LikeablePersonService {
         return likeablePersonRepository.findByFromInstaMemberId(fromInstaMemberId);
     }
 
-    // 삭제 기능 구현
-
-    @Transactional
-    public RsData<LikeablePerson> deleteLikeablePerson(Integer id, InstaMember instaMember) {
-        LikeablePerson likeablePerson = getLikeablePerson(id).getData();
-
-        if (instaMember.getId() != likeablePerson.getFromInstaMember().getId() ) {
-            return RsData.of("F-1", "삭제 권한이 없습니다");
-        }
-
-        likeablePersonRepository.delete(likeablePerson); //삭제
-
-        return RsData.of("S-1", "입력하신 호감상대(%s)가 삭제되었습니다.".formatted(likeablePerson.getToInstaMemberUsername()), likeablePerson);
+    public Optional<LikeablePerson> findById(Long id) {
+        return likeablePersonRepository.findById(id);
     }
 
     @Transactional
-    public RsData<LikeablePerson> getLikeablePerson(Integer id) {
-        Optional<LikeablePerson> likeablePerson = likeablePersonRepository.findById(id);
+    public RsData delete(LikeablePerson likeablePerson) {
+        String toInstaMemberUsername = likeablePerson.getToInstaMember().getUsername();
+        likeablePersonRepository.delete(likeablePerson);
 
-        if (!likeablePerson.isPresent()) {
-            return RsData.of("F-1", "해당하는 호감상대가 존재하지 않습니다.");
-        }
+        return RsData.of("S-1", "%s님에 대한 호감을 취소하였습니다.".formatted(toInstaMemberUsername));
+    }
 
-        return RsData.of("S-1", "호감상대 조회 성공", likeablePerson.get());
+    public RsData canActorDelete(Member actor, LikeablePerson likeablePerson) {
+        if (likeablePerson == null) return RsData.of("F-1", "이미 삭제되었습니다.");
+
+        if (!Objects.equals(actor.getInstaMember().getId(), likeablePerson.getFromInstaMember().getId()))
+            return RsData.of("F-2", "권한이 없습니다.");
+
+        return RsData.of("S-1", "삭제가능합니다.");
     }
 }
-
