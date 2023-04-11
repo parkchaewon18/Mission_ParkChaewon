@@ -160,7 +160,10 @@ public class LikeablePersonControllerTests {
     void t006() throws Exception {
         // WHEN
         ResultActions resultActions = mvc
-                .perform(get("/likeablePerson/delete/1"))
+                .perform(
+                        post("/likeablePerson/delete/1")
+                                .with(csrf())
+                )
                 .andDo(print());
 
         // THEN
@@ -174,4 +177,3 @@ public class LikeablePersonControllerTests {
         assertThat(likeablePersonService.findById(1L).isPresent()).isEqualTo(false);
     }
 }
-
