@@ -68,16 +68,8 @@ public class LikeablePersonController {
     }
 
     //삭제 기능 구현
-    @PreAuthorize("isAuthenticated()")
     @GetMapping("/delete/{id}")
-    public String delete(@PathVariable("id") Integer id) {
-
-        RsData<LikeablePerson> deleteRsData = likeablePersonService.deleteLikeablePerson(id, rq.getMember().getInstaMember());
-
-        if (deleteRsData.isFail()) {
-            return rq.historyBack(deleteRsData);
-        }
-
-        return rq.redirectWithMsg("/likeablePerson/list", deleteRsData);
+    public String delete(@PathVariable Long id) {
+        return rq.redirectWithMsg("/likeablePerson/list", "삭제되었습니다.");
     }
 }
