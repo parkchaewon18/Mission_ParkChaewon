@@ -60,7 +60,6 @@ public class LikeablePerson extends BaseEntity {
 
         this.attractiveTypeCode = attractiveTypeCode;
         this.modifyUnlockDate = AppConfig.genLikeablePersonModifyUnlockDate();
-
         return RsData.of("S-1", "성공");
     }
 
