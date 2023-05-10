@@ -13,7 +13,6 @@ import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 
 @Entity
 @Getter
@@ -41,16 +40,7 @@ public class LikeablePerson extends BaseEntity {
 
     // 초 단위에서 올림 해주세요.
     public String getModifyUnlockDateRemainStrHuman() {
-        long modifyUnlockTimeRemain = ChronoUnit.SECONDS.between(LocalDateTime.now(), modifyUnlockDate);
-        return transTimeFormat(modifyUnlockTimeRemain);
-    }
-    public String transTimeFormat(long time) {
-        long hour = time / 3600;
-        long minute = time % 3600 / 60;
-        long second = time % 3600 % 60;
-        if (hour == 0 && minute == 0) return second + "초";
-
-        return hour + "시간 " + minute + "분";
+        return Ut.time.diffFormat1Human(LocalDateTime.now(), modifyUnlockDate);
     }
 
     public RsData updateAttractionTypeCode(int attractiveTypeCode) {
@@ -60,6 +50,7 @@ public class LikeablePerson extends BaseEntity {
 
         this.attractiveTypeCode = attractiveTypeCode;
         this.modifyUnlockDate = AppConfig.genLikeablePersonModifyUnlockDate();
+
         return RsData.of("S-1", "성공");
     }
 
